@@ -38,7 +38,12 @@ def callback(request):
     ik_logger.log(timeout)
 
     response.solution.joint_state = joint_state
-    new_joint_state_vector, success = kdl_ik_service.ik.calculate_ik(base_link, end_effector_link, joint_state.position, transform_stamped, ik_logger.log)
+    ik_logger.log("Using NR_JL solver")
+    new_joint_state_vector, success = kdl_ik_service.ik.calculate_ik(base_link, end_effector_link, joint_state.position, transform_stamped, ik_logger.log, "NR_JL")
+    if not success:
+        ik_logger.log("NR_JL solver failed. Using LMA solver")
+        new_joint_state_vector, success = kdl_ik_service.ik.calculate_ik(base_link, end_effector_link, joint_state.position, transform_stamped, ik_logger.log, "LMA")
+
     ik_logger.log(new_joint_state_vector)
     response.solution.joint_state.position = new_joint_state_vector
 

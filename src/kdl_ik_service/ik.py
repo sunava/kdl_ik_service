@@ -31,7 +31,7 @@ def hacky_urdf_parser_fix(urdf_str):
 
 
 # ================================= API ===================================================
-def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_msg, log_fun):
+def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_msg, log_fun, solver="NR_JL"):
     """
     Calculates the Inverse Kinematics from base_link to tip_link according to the given
     goal_transform_geometry_msg. The initial joint states would be considered from seed_joint_state.
@@ -53,9 +53,13 @@ def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_
 
     fk_solver = PyKDL.ChainFkSolverPos_recursive(kdl_chain)
     velocity_ik = PyKDL.ChainIkSolverVel_pinv(kdl_chain)
-    # ik_solver = PyKDL.ChainIkSolverPos_LMA(kdl_chain, 1e-5, 1000, 1e-15)
-    ik_solver = PyKDL.ChainIkSolverPos_NR_JL(kdl_chain, kdl_joint_limits_min, kdl_joint_limits_max,
+    if solver == "LMA":
+        ik_solver = PyKDL.ChainIkSolverPos_LMA(kdl_chain, 1e-5, 1000, 1e-15)
+    elif solver == "NR_JL":
+        ik_solver = PyKDL.ChainIkSolverPos_NR_JL(kdl_chain, kdl_joint_limits_min, kdl_joint_limits_max,
                                              fk_solver, velocity_ik)
+    else:
+        raise ValueError("Invalid solver type. Supported solvers are LMA and NR_JL")
 
     # Getting the goal frame and seed state
     goal_frame_kdl = tf2_kdl.transform_to_kdl(goal_transform_geometry_msg)
