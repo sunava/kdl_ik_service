@@ -1,0 +1,6 @@
+<launch>
+  <let name="ik_debug" value="false"/>
+  <node pkg="kdl_ik_service" exec="start_ros_server" name="kdl_ik_service" output="screen">
+    <param name="ik_debug" value="$(var ik_debug)"/>
+  </node>
+</launch>
