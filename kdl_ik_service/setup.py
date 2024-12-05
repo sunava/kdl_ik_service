@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup,find_packages
 
 package_name = 'kdl_ik_service'
 
@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'start_ros_server = scripts.start_ros_server:main',
         ],
     },
 )
