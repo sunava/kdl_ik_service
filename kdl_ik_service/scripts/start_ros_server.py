@@ -5,6 +5,7 @@ from rclpy.node import Node
 import moveit_msgs.srv
 import geometry_msgs.msg
 import kdl_ik_service.ik
+import signal
 
 
 class IkService(Node):
@@ -70,12 +71,16 @@ class IkService(Node):
         return response
 
 
-def server_main():
+def main():
+    signal.signal(signal.SIGINT, signal_handler)
+
     rclpy.init()
     ik_service = IkService()
     rclpy.spin(ik_service)
     rclpy.shutdown()
 
+def signal_handler(sig, frame):
+    exit(0)
 
 class Logger(object):
     def __init__(self, display_output=False):
@@ -87,4 +92,4 @@ class Logger(object):
 
 
 if __name__ == "__main__":
-    server_main()
+    main()
