@@ -10,7 +10,6 @@
   <author>Amar Fayaz</author>
   <license>BSD</license>
 
-  <exec_depend>rospy</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 2">python_orocos_kdl</exec_depend>
   <exec_depend condition="$ROS_PYTHON_VERSION == 3">python3-pykdl</exec_depend>
   <exec_depend>urdfdom_py</exec_depend>
