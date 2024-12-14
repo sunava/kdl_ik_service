@@ -1,5 +1,4 @@
 import PyKDL
-import rospy
 import urdf_parser_py.urdf  # from urdfdom_py
 import kdl_parser_py.urdf  # from kdl_parser_py
 import tf2_kdl
@@ -31,7 +30,7 @@ def hacky_urdf_parser_fix(urdf_str):
 
 
 # ================================= API ===================================================
-def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_msg, log_fun, solver="NR_JL"):
+def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_msg, log_fun, robot_urdf_string, solver="NR_JL"):
     """
     Calculates the Inverse Kinematics from base_link to tip_link according to the given
     goal_transform_geometry_msg. The initial joint states would be considered from seed_joint_state.
@@ -39,7 +38,6 @@ def calculate_ik(base_link, tip_link, seed_joint_state, goal_transform_geometry_
     base_link eg. - "triangle_base_link" or "calib_left_arm_base_link" or "calib_right_arm_base_link"
     tip_link eg. - "left_arm_7_link" or "right_arm_7_link"
     """
-    robot_urdf_string = rospy.get_param('robot_description')
     robot_urdf_string_fixed = hacky_urdf_parser_fix(robot_urdf_string)
     urdf_obj = urdf_parser_py.urdf.URDF.from_xml_string(robot_urdf_string_fixed)
     _, kdl_tree = kdl_parser_py.urdf.treeFromUrdfModel(urdf_obj)

@@ -1,0 +1,4 @@
+[submodule "kdl_parser"]
+	path = kdl_parser
+	url = https://github.com/AdrianZw/kdl_parser.git
+	branch = foxy
