@@ -14,6 +14,8 @@ class IkService(Node):
         super().__init__('kdl_ik_service')
         self.srv = self.create_service(moveit_msgs.srv.GetPositionIK, 'get_ik', self.callback)
         self.get_logger().info('IK server ready.')
+        self.declare_parameter('ik_debug', False)
+        self.declare_parameter('robot_description', None)
 
     def callback(self, request, response):
         # print "Got request %s"%(request)
@@ -25,7 +27,7 @@ class IkService(Node):
         # response = moveit_msgs.srv.GetPositionIKResponse()
 
         end_effector_link = request.ik_request.ik_link_name
-        ik_logger.log(end_effector_link)
+        ik_logger.debug(f"End Effector Link: {end_effector_link}")
 
         pose_stamped = request.ik_request.pose_stamped
         transform_stamped = geometry_msgs.msg.TransformStamped
@@ -37,37 +39,37 @@ class IkService(Node):
         transform_stamped.transform.translation.y = pose_stamped.pose.position.y
         transform_stamped.transform.translation.z = pose_stamped.pose.position.z
         transform_stamped.transform.rotation = pose_stamped.pose.orientation
-        ik_logger.log(transform_stamped)
+        ik_logger.debug(f"Target pose: {transform_stamped}")
 
         base_link = transform_stamped.header.frame_id
-        ik_logger.log(base_link)
+        ik_logger.debug(f"Base Link: {base_link}")
 
         joint_state = request.ik_request.robot_state.joint_state
-        ik_logger.log(joint_state)
+        ik_logger.debug(f"Joint states: {joint_state}")
 
         timeout = request.ik_request.timeout
-        ik_logger.log(timeout)
+        ik_logger.debug(f"Timeout: {timeout}")
 
         response.solution.joint_state = joint_state
-        ik_logger.log("Using NR_JL solver")
-        urdf_string = self.get_parameter("robot_description")
+        ik_logger.info("Using NR_JL solver")
+        urdf_string = self.get_parameter("robot_description").get_parameter_value().string_value
         new_joint_state_vector, success = kdl_ik_service.ik.calculate_ik(base_link, end_effector_link,
                                                                          joint_state.position, transform_stamped,
-                                                                         ik_logger.log, urdf_string, "NR_JL")
+                                                                         ik_logger.info, urdf_string, "NR_JL")
         if not success:
-            ik_logger.log("NR_JL solver failed. Using LMA solver")
+            ik_logger.info("NR_JL solver failed. Using LMA solver")
             new_joint_state_vector, success = kdl_ik_service.ik.calculate_ik(base_link, end_effector_link,
                                                                              joint_state.position, transform_stamped,
-                                                                             ik_logger.log, urdf_string, "LMA")
+                                                                             ik_logger.info, urdf_string, "LMA")
 
-        ik_logger.log(new_joint_state_vector)
+        ik_logger.debug(f"Calculates Joint states{new_joint_state_vector}")
         response.solution.joint_state.position = new_joint_state_vector
 
         if success:
             response.error_code.val = response.error_code.SUCCESS
         else:
             response.error_code.val = response.error_code.NO_IK_SOLUTION
-        ik_logger.log(response)
+        ik_logger.debug(f"Response: {response}")
         return response
 
 
